@@ -895,10 +895,6 @@ goog.require('ga_urlutils_service');
               response.data['ch.swisstopo.swissimage-product_3d'] = {
                 type: 'wmts',
                 serverLayerName: 'ch.swisstopo.swissimage-product',
-                url: '//wmts{s}.geo.admin.ch/1.0.0/' +
-                    '{Layer}/default/' +
-                    '{Time}/{TileMatrixSet}/{z}/{y}/{x}.{Format}',
-                subdomains: '56789',
                 attribution: 'swissimage 3D',
                 attributionUrl: 'http://www.swisstopo.admin.ch/internet/' +
                     'swisstopo/en/home/products/height/swissALTI3D.html'
@@ -907,10 +903,7 @@ goog.require('ga_urlutils_service');
                 type: 'wmts',
                 format: 'jpeg',
                 serverLayerName: 'ch.swisstopo.swisstlm3d-karte-farbe.3d',
-                url: '//wmts{s}.geo.admin.ch/1.0.0/' +
-                    '{Layer}/default/' +
-                    '20150401/{TileMatrixSet}/{z}/{y}/{x}.{Format}',
-                subdomains: '56789',
+                timestamps: ['20150401'],
                 attribution: 'swisstlm 3D Farbe',
                 attributionUrl: 'http://www.swisstopo.admin.ch/internet/' +
                     'swisstopo/en/home/products/height/swissALTI3D.html'
@@ -919,10 +912,7 @@ goog.require('ga_urlutils_service');
                 type: 'wmts',
                 format: 'jpeg',
                 serverLayerName: 'ch.swisstopo.swisstlm3d-karte-grau.3d',
-                url: '//wmts{s}.geo.admin.ch/1.0.0/' +
-                    '{Layer}/default/' +
-                    '20150401/{TileMatrixSet}/{z}/{y}/{x}.{Format}',
-                subdomains: '56789',
+                timestamps: ['20150401'],
                 attribution: 'swisstlm 3D Grau',
                 attributionUrl: 'http://www.swisstopo.admin.ch/internet/' +
                     'swisstopo/en/home/products/height/swissALTI3D.html'
@@ -1059,7 +1049,7 @@ goog.require('ga_urlutils_service');
             provider = new Cesium.UrlTemplateImageryProvider({
               url: params.url,
               minimumRetrievingLevel: window.minimumRetrievingLevel,
-              subdomains: config3d.subdomains || ['10', '11', '12', '13', '14'],
+              subdomains: config3d.subdomains || ['20', '21', '22', '23', '24'],
               tilingScheme: new Cesium.GeographicTilingScheme(),
               tileWidth: params.tileSize,
               tileHeight: params.tileSize,
