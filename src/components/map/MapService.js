@@ -382,6 +382,8 @@ goog.require('ga_urlutils_service');
         };
         var extent = gaGlobalOptions.defaultExtent;
         return new Cesium.UrlTemplateImageryProvider({
+          minimumLevel: 8,
+          maximumLevel: 16,
           minimumRetrievingLevel: window.minimumRetrievingLevel,
           url: gaUrlUtils.append(layer.url, gaUrlUtils.toKeyValue(wmsParams)),
           rectangle: gaMapUtils.extentToRectangle(extent, 'EPSG:21781'),
@@ -1143,8 +1145,10 @@ goog.require('ga_urlutils_service');
               ol.proj.get('EPSG:21781').getExtent());
           if (params) {
             provider = new Cesium.UrlTemplateImageryProvider({
-              url: params.url,
+              minimumLevel: 8,
+              maximumLevel: 16,
               minimumRetrievingLevel: window.minimumRetrievingLevel,
+              url: params.url,
               subdomains: params.subdomains,
               rectangle: gaMapUtils.extentToRectangle(extent, 'EPSG:21781'),
               tilingScheme: new Cesium.GeographicTilingScheme(),
