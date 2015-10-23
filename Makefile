@@ -22,7 +22,7 @@ DEPLOY_TARGET ?= 'dev'
 LAST_DEPLOY_TARGET := $(shell if [ -f .build-artefacts/last-deploy-target ]; then cat .build-artefacts/last-deploy-target 2> /dev/null; else echo '-none-'; fi)
 OL3_VERSION ?= b27acb8d5e63a0363026d5e58c37ae38ba9a3192
 OL3_CESIUM_VERSION ?= dea7cb2c56ebecd5a1ee009b78fad60f3e936276
-CESIUM_VERSION ?= 9e67416d1016436b5cb237d6ec34f6c988bc5ecc
+CESIUM_VERSION ?= a742eb6084f0fb34c85d14d3d2b2f0cf9ea1458b
 DEFAULT_TOPIC_ID ?= ech
 TRANSLATION_FALLBACK_CODE ?= de
 LANGUAGES ?= '[\"de\", \"en\", \"fr\", \"it\", \"rm\"]'
@@ -190,6 +190,8 @@ ol3cesium: .build-artefacts/ol3-cesium
 	cd cesium; \
 	git remote | grep c2c || git remote add c2c git://github.com/camptocamp/cesium; \
 	git fetch c2c; \
+	git remote | grep oterral || git remote add oterral git://github.com/oterral/cesium; \
+	git fetch oterral; \
 	git checkout $(CESIUM_VERSION); \
 	cd ..; \
 	git show; \
