@@ -13,15 +13,13 @@
       ng-drag-stop="onDragStop()"
       ng-drag-data="layer">
     <div class="ga-layer-infos">
-      <div class="ga-layer-label-container">
-        <button class="ga-icon ga-btn icon-remove-sign"
-              ng-click="removeLayer(layer)"></button>
-        <span class="ga-checkbox">
-          <input type="checkbox" ng-model="layer.visible" />
-          <span></span>
-          {{layer.label}}
-        </span>
-      </div>
+      <button class="ga-icon ga-btn icon-remove-sign"
+            ng-click="removeLayer(layer)"></button>
+      <label class="ga-checkbox">
+        <input type="checkbox" ng-model="layer.visible" />
+        <span></span>
+        {{layer.label}}
+      </label>
       <div class="ga-layer-time" ng-if="layer.timeEnabled">
         <button class="ga-btn badge" tabindex="1"
                 ng-class="isDefaultValue(layer.time)"
