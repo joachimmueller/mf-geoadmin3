@@ -1,16 +1,15 @@
-<div id="drag-info"></div>
+<div class="drag-info"></div>
 <ul>
   <li ng-repeat="layer in filteredLayers" class="ga-layer-folded"
       ng-class="{
         'ga-layer-time-enabled': layer.timeEnabled,
-        'ga-layer-warning': layer.useThirdPartyData,
-        'ga-layer-folded': !tools.enabled || tools.index !== $index
+        'ga-layer-warning': layer.useThirdPartyData
       }"
       ng-drop="true"
-      ng-drop-success="onDropComplete($data, $event)"
-      ng-drag="!tools.enabled || tools.index != $index"
-      ng-drag-start="onDragStart()"
-      ng-drag-stop="onDragStop()"
+      ng-drop-success="onDropComplete($event)"
+      ng-drag="true"
+      ng-drag-start="onDragStart($event)"
+      ng-drag-stop="onDragStop($event)"
       ng-drag-data="layer">
     <div class="ga-layer-infos">
       <button class="ga-icon ga-btn icon-remove-sign"
@@ -32,9 +31,9 @@
       </div>
       <button class="ga-icon ga-btn icon-user"
               ng-click="showWarning(layer)"></button>
-      <button class="ga-icon icon-gear" ng-click="toggleTools($index)"></button>
+      <button class="ga-icon icon-gear"></button>
     </div><!--ga-layer-infos-->
-    <div class="ga-layer-tools" ng-if="tools.enabled && tools.index === $index">
+    <div class="ga-layer-tools">
       <label>
         <div translate>transparency</div>&nbsp;
         <input  ng-if="useRange" type="range" min="0" max="1" step="0.05" value="1" ng-model="layer.invertedOpacity"/>

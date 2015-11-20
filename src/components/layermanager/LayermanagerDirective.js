@@ -127,11 +127,11 @@ goog.require('ga_urlutils_service');
       link: function(scope, element, attrs) {
         var map = scope.map;
         var drag = {
-          info: $('#drag-info'),
-          above: 'above',
+          info: element.find('.drag-info'),
+          upper: 'upper',
           under: 'under',
-          scrollSpeed: 10,
-          layerManager: $('[ga-layermanager]'),
+          scrollSpeed: 40,
+          layerManager: element,
           element: null,
           position: {
             index: undefined,
@@ -153,10 +153,6 @@ goog.require('ga_urlutils_service');
         scope.layers = map.getLayers().getArray();
         scope.layerFilter = gaLayerFilters.selected;
         scope.mobile = gaBrowserSniffer.mobile;
-        scope.tools = {
-          enabled: false,
-          index: -1
-        };
         scope.$watchCollection('layers | filter:layerFilter', function(items) {
           scope.filteredLayers = (items) ? items.slice().reverse() : [];
         });
@@ -204,16 +200,16 @@ goog.require('ga_urlutils_service');
           var layersCollection = map.getLayers();
           layersCollection.removeAt(index);
           layersCollection.insertAt(index + delta, layer);
-          scope.tools.index = scope.filteredLayers.indexOf(layer);
           evt.preventDefault();
         };
 
-        scope.onDropComplete = function(currentLayer, evt) {
+        scope.onDropComplete = function(evt) {
+          var currentLayer = evt.data;
           var currentIndex = scope.filteredLayers.indexOf(currentLayer);
           if (drag.position.direction === drag.under &&
               currentIndex > drag.position.index) {
             drag.position.index++;
-          } else if (drag.position.direction === drag.above &&
+          } else if (drag.position.direction === drag.upper &&
               currentIndex < drag.position.index) {
             drag.position.index--;
           }
@@ -234,97 +230,70 @@ goog.require('ga_urlutils_service');
           }
         };
 
-        scope.onDragStart = function() {
-          if (!drag.element) {
-            drag.element = $('.dragging');
-            // Use the original position the dragged element as an absolute
-            // position so it doesn't go off the layer manager during drag and
-            // drop.
-            drag.element.css('top', drag.element.position().top + 'px');
-            drag.element.css('position', 'absolute');
-
-            // The size of #drag-info can be incorrect and not match the actual
-            // size of the ul element. We correct it before to start the drag
-            // and drop.
-            var list = $('[ga-layermanager] ul').get(0);
-            var listWidth = getComputedStyle(list).width;
-            drag.info.css('width', listWidth);
-
-            drag.layerManager.mousemove(function(evt) {
-              updateDragInfo(evt);
-              scrollLayerManager();
-            });
+        scope.onDragStart = function(evt) {
+          // Drag start event is triggered twice. Once by the ngDrag directive
+          // and once by the ngDrop directive here. This 'if' cancel the event
+          // of the ngDrag directive.
+          if (!evt.element && !evt.data) {
+            return;
           }
+          var target = evt.element;
+          // Hide the tools if open
+          if (!target.hasClass('ga-layer-folded')) {
+            target.find('.icon-gear').click();
+          }
+          drag.layerManager.mousemove(function(evt) {
+            updateDragInfo(evt);
+          });
         };
 
         var updateDragInfo = function(evt) {
           if (drag.previousClientY) {
             drag.ty = evt.clientY - drag.previousClientY;
             drag.previousClientY = evt.clientY;
+            var elt = drag.layerManager.find('.drag-enter:not(.dragging)');
+            if (elt.length == 1 && drag.ty !== 0) {
+              var elementPosition = elt.position().top - 5;
+              drag.position.direction = (drag.ty > 0) ? drag.under : drag.upper;
+              drag.position.index = drag.layerManager.find('li').index(elt[0]);
+              if (drag.position.direction === drag.under) {
+                 elementPosition += elt.height();
+              }
+              drag.info.css('top', elementPosition);
+              drag.info.show();
 
-            drag.info.hide();
-            showDragInfo();
+              // Update scroll if necessary
+              var margin = elt.height();
+              var upperBound = drag.layerManager.offset().top;
+              if (drag.position.direction == drag.under) {
+                var lowerBound = upperBound + drag.layerManager.height();
+                if (elt.offset().top > lowerBound - margin) {
+                  drag.layerManager.scrollTop(drag.layerManager.scrollTop() +
+                      drag.scrollSpeed);
+                }
+              } else if (drag.position.direction == drag.upper) {
+                if (elt.offset().top < upperBound + margin) {
+                  drag.layerManager.scrollTop(drag.layerManager.scrollTop() -
+                      drag.scrollSpeed);
+                }
+              }
+            }
           } else {
             drag.previousClientY = evt.clientY;
           }
         };
 
-        var showDragInfo = function() {
-          var direction;
-          if (drag.ty > 0) {
-            direction = drag.under;
-          } else if (drag.ty < 0) {
-            direction = drag.above;
+        scope.onDragStop = function(evt) {
+          // Drag stop event is trigger twice. Once by the ngDrag directive and
+          // once by the ngDrop directive here. This 'if' cancel the event of
+          // the ngDrag directive.
+          if (!evt.element && !evt.data) {
+            return;
           }
-          $('li.drag-enter').each(function(index, elt) {
-            if ($(elt).attr('class').indexOf('dragging') === -1 &&
-                drag.ty !== 0) {
-              drag.position.index = $('[ga-layermanager] li').index(elt);
-              drag.position.direction = direction;
-              updateDragInfoElement(elt);
-            }
-          });
-        };
-
-        var updateDragInfoElement = function(elt) {
-          var elementPosition = $(elt).position().top;
-          var elementHeight = $(elt).height();
-          if (drag.position.direction === drag.under) {
-            drag.info.css('top', elementPosition + elementHeight - 5);
-          } else if (drag.position.direction === drag.above) {
-            drag.info.css('top', elementPosition - 5);
-          }
-          drag.info.show();
-        };
-
-        var scrollLayerManager = function() {
-          var upperBound = $('#selectionHeading').position().top +
-              $('#selectionHeading').height();
-          var lowerBound = $('#selection .ga-more-layers').position().top;
-
-          var elementTop = drag.element.position().top -
-              drag.element.height();
-          var elementBottom = drag.element.position().top +
-              drag.element.height();
-
-          if (elementBottom >= lowerBound) {
-            var scrollValue = drag.layerManager.scrollTop() +
-                drag.scrollSpeed;
-            drag.layerManager.scrollTop(scrollValue);
-          } else if (elementTop <= upperBound) {
-            var scrollValue = drag.layerManager.scrollTop() -
-                drag.scrollSpeed;
-            drag.layerManager.scrollTop(scrollValue);
-          }
-        };
-
-        scope.onDragStop = function() {
-          if (drag.element) {
+          var target = evt.element;
+          if (target) {
             drag.info.hide();
             drag.layerManager.off('mousemove');
-            drag.element.css('top', '');
-            drag.element.css('position', '');
-            drag.element = null;
             drag.previousClientY = undefined;
             drag.ty = undefined;
           }
@@ -381,15 +350,17 @@ goog.require('ga_urlutils_service');
           ];
         }
 
-        // Toggle layer tools for small screen
-        scope.toggleTools = function($index) {
-          if (scope.tools.index === $index) {
-            scope.tools.enabled = !scope.tools.enabled;
-          } else {
-            scope.tools.enabled = true;
-          }
-          scope.tools.index = $index;
-        };
+        // Toggle layer tools
+        element.on('click', '.icon-gear', function() {
+          var li = $(this).closest('li');
+          li.toggleClass('ga-layer-folded');
+          $(this).closest('ul').find('li').each(function(i, el) {
+            if (el != li[0]) {
+              $(el).addClass('ga-layer-folded');
+            }
+          });
+        });
+
 
         if (!scope.mobile) {
           // Display the third party data tooltip
