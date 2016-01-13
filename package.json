@@ -23,6 +23,7 @@
     "angular": "1.4.2",
     "angular-translate": "2.8.1",
     "localforage": "1.0.1",
-    "phantomjs": "1.9.16"
+    "phantomjs": "1.9.16",
+    "slipjs": "^1.2.0"
   }
 }
