@@ -267,6 +267,7 @@ prd/lib/: src/lib/d3-3.3.1.min.js \
 	cp -rf  $^ $@
 
 prd/lib/build.js: src/lib/jquery-2.0.3.min.js \
+	            src/lib/slip.js \
 		    src/lib/bootstrap-3.3.1.min.js \
 		    src/lib/moment-with-customlocales.min.js \
 		    src/lib/typeahead-0.9.3.min.js src/lib/angular.min.js \
@@ -461,6 +462,7 @@ node_modules: package.json
 	    --externs externs/ol.js \
 	    --externs externs/ol3-cesium.js \
 	    --externs externs/Cesium.externs.js \
+	    --externs externs/slip.js \
 	    --externs .build-artefacts/externs/angular.js \
 	    --externs .build-artefacts/externs/jquery.js \
 	    --js_output_file $@
