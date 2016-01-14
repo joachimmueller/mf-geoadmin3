@@ -214,6 +214,14 @@ fastclick: .build-artefacts/fastclick .build-artefacts/closure-compiler/compiler
 	    --compilation_level SIMPLE_OPTIMIZATIONS \
 	    --js_output_file  src/lib/fastclick.min.js
 
+.PHONY: slipjs
+slipjs: node_modules .build-artefacts/closure-compiler/compiler.jar node_modules/slipjs
+	java -jar .build-artefacts/closure-compiler/compiler.jar \
+	    src/lib/slip.js \
+	    --compilation_level SIMPLE_OPTIMIZATIONS \
+	    --language_in ECMASCRIPT5 \
+	    --js_output_file src/lib/slipjs.min.js
+
 .PHONY: typeahead
 typeahead: .build-artefacts/closure-compiler/compiler.jar
 	java -jar .build-artefacts/closure-compiler/compiler.jar \
@@ -267,7 +275,7 @@ prd/lib/: src/lib/d3-3.3.1.min.js \
 	cp -rf  $^ $@
 
 prd/lib/build.js: src/lib/jquery-2.0.3.min.js \
-	            src/lib/slip.js \
+	        src/lib/slip.min.js \
 		    src/lib/bootstrap-3.3.1.min.js \
 		    src/lib/moment-with-customlocales.min.js \
 		    src/lib/typeahead-0.9.3.min.js src/lib/angular.min.js \
