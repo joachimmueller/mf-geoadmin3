@@ -139,6 +139,8 @@ goog.require('ga_urlutils_service');
         scope.layerFilter = gaLayerFilters.selected;
         scope.$watchCollection('layers | filter:layerFilter', function(items) {
           scope.filteredLayers = (items) ? items.slice().reverse() : [];
+          disableDragAndDrop();
+          enableDragAndDrop();
         });
 
         // Use to disable drag and drop if the user drops the layer at its
@@ -162,12 +164,12 @@ goog.require('ga_urlutils_service');
           // If the user has the focus on the wrong element (eg the
           // transparency selector) we must not enable the drag and drop in
           // order not to break functonnalities.
-          var index = $('[ga-layermanager] ul label.ga-checkbox')
+          /*var index = $('[ga-layermanager] ul label.ga-checkbox')
               .index(mousedownEvent.target);
           if (index === -1) {
             disableDragAndDrop();
             return;
-          }
+          }*/
 
           configureSlipjs(mousedownEvent);
         };
@@ -204,16 +206,13 @@ goog.require('ga_urlutils_service');
             }
           });
 
-          slip.onMouseDown(mousedownEvent);
+          //slip.onMouseDown(mousedownEvent);
         };
-
-        element.bind('mousedown', enableDragAndDrop);
-
-        element.bind('mouseup', function() {
+        /*element.bind(gaBrowserSniffer.events.end, function() {
           if (dragging) {
             disableDragAndDrop();
           }
-        });
+        });*/
 
         // On mobile we use a classic select box, on desktop a popover
         if (!scope.mobile) {
