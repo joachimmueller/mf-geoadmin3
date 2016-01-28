@@ -23,7 +23,8 @@ goog.require('ga_topic_service');
   module.directive('gaTooltip',
       function($timeout, $http, $q, $translate, $sce, gaPopup, gaLayers,
           gaBrowserSniffer, gaDefinePropertiesForLayer, gaMapClick, gaDebounce,
-          gaPreviewFeatures, gaStyleFactory, gaMapUtils, gaTime, gaTopic) {
+          gaPreviewFeatures, gaStyleFactory, gaMapUtils, gaTime, gaTopic,
+          $window) {
         var popupContent =
           '<div ng-repeat="htmlsnippet in options.htmls">' +
             '<div ng-mouseenter="options.onMouseEnter($event,' +
@@ -191,10 +192,19 @@ goog.require('ga_topic_service');
           if (deregGlobeEvents != angular.noop) {
             return;
           }
+          var ms = 0;
+          var blockNextLeftClick = false;
           var scene = scope.ol3d.getCesiumScene();
           var ellipsoid = scene.globe.ellipsoid;
           var handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
-          handler.setInputAction(function(evt) {
+          handler.setInputAction(function(evt, a, b) {
+            $window.console.log(new Date() - ms);
+            if (blockNextLeftClick && (new Date() - ms) < 1000) {
+              blockNextLeftClick = false;
+              $window.console.log('left click blocked');
+              return;
+            }
+            $window.console.log('left click');
             var cartesian = olcs.core.pickOnTerrainOrEllipsoid(scene,
                 evt.position);
             if (cartesian) {
@@ -208,6 +218,19 @@ goog.require('ga_topic_service');
               onClick(coordinate, evt.position);
             });
           }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+          handler.setInputAction(function(evt, a, b) {
+            $window.console.log('pinch start');
+          }, Cesium.ScreenSpaceEventType.PINCH_START);
+          handler.setInputAction(function(evt, a, b) {
+            $window.console.log('pinch move');
+          }, Cesium.ScreenSpaceEventType.PINCH_MOVE);
+          handler.setInputAction(function(evt, a, b) {
+            $window.console.log('pinch end');
+            blockNextLeftClick = true;
+            ms = new Date();
+          }, Cesium.ScreenSpaceEventType.PINCH_END);
+
+
           deregGlobeEvents = function() {
             if (!handler.isDestroyed()) {
               handler.removeInputAction(
